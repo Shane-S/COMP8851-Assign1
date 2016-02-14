@@ -112,7 +112,7 @@
   <ItemGroup>
     <ClInclude Include="List.hpp" />
     <ClInclude Include="PostFixEvaluator.h" />
-    <ClInclude Include="Queue.h" />
+    <ClInclude Include="Queue.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />

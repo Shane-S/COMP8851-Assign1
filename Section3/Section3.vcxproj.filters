@@ -29,7 +29,7 @@
     <ClInclude Include="PostFixEvaluator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Queue.h">
+    <ClInclude Include="Queue.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
