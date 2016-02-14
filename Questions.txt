@@ -1,0 +1,39 @@
+Section 2
+---------
+Question 2.2
+The answer is a; T1(f(N)) + T2(f(N)) = O(2(f(N))) = O(f(N))
+
+Question 2.14
+a.
+
+b. At each iteration, the algorithm multiplies the partially computed polynomial from the previous step by x and adds the coefficient for x^n-i. Eventually, this results in polyn = (x^n * a[n]) + (x^n-1 * a[n-1]) ... + a[0] (see below).
+
+poly0 = (x * 0) + a[n]
+poly0 = a[n]
+
+poly1 = (x * poly0) + a[n-1]
+poly1 = (x * a[n]) + a[n-1]
+
+poly2 = (x * poly1) + a[n-2])
+poly2 = (x * ((x * a[n]) + a[n-1])) + a[n-2]
+poly2 = (x^2 * a[n]) + (x * a[n-1]) + a[n-2]
+...
+polyn = (x^n * a[n]) + (x^n-1 * a[n-1]) ... + a[0]
+
+c. The running time is O(N).
+
+Section 3
+---------
+Question 3.9
+Q: According to the C++ standard, for the vector, a call to push_back, pop_back, insert, or erase invalidates (potentially makes stale) all iterators viewing the vector. Why?
+A: push_back and insert could cause the vector to resize its internal array, which may result in the OS giving it a new chunk of memory. Any iterators pointing at the previous chunk of memory would then be pointing to memory that the OS can use for whatever it wants. pop_back or erase may cause the last element to be removed, in which case an iterator pointing to the last element would point at invalid memory. Additionally, insert or erase may modify the middle of the array, in which case an iterator pointing to something at or after the point of insertion or deletion would be pointing at an incorrect value (some elements could end up being processed twice in the case of insertion, and deletion would cause the iterator to go past the end of the container).
+
+Question 3.20
+a. Advantages
+   [] When using a large container, deleting something near the middle using the standard algorithm could cause a lot of elements to be shifted into place. Multiple deletions in this area would then result in a lot of copying/moving that could have been done more efficiently with lazy deletion.
+   [] Elements can be inserted directly into deleted spots, which doesn't require the structure to do as much shifting.
+   
+   Disadvantages
+   [] Memory that could be used by something else stays in use.
+   [] Iterating over the container will take longer since deleted elements will be processed
+
