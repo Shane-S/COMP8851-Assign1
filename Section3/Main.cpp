@@ -7,47 +7,59 @@
 using std::string;
 
 /**
- * @brief	Determines the highest bit that's a 1 in the given number.
+ * @brief	Returns the highest power of two for the given number.
  *
  * @author	Shane
  * @date	1/25/2016
  *
  * @param	number	The number to be evaluated.
  *
- * @return	The highest bit set to 1, or -1 if the number is 0.
+ * @return	The value of the number's highest bit set to 1 or 0 if number is 0.
  */
+int highest_one_bit(uint32_t number) {
+	if (!number) return 0;
 
-int highestOneBit(uint32_t number) {
-	int highestOne = -1;
-	while (number) {
+	std::size_t highestOne = 0;
+	std::uint32_t number_copy = number;
+	while (number_copy) {
 		highestOne++;
-		number >>= 1;
+		number_copy >>= 1;
 	}
-	return highestOne;
+	std::uint32_t ret = number & (1 << (highestOne - 1));
+	return ret;
 }
 
 /**
- * @brief	Josephus problem solver.
+ * @brief	Iterative Josephus problem solver.
  *
  * @author	Shane
  * @date	1/25/2016
  *
- * @param	numPeople	Number of people in the circle.
- * @param	numPasses	Number of passes before the hot potato burns someone.
+ * @param	num_ppl		Number of people in the circle.
+ * @param	num_passes	Number of passes before the "hot potato" "burns" someone.
  *
- * @return	The index of the person who won.
+ * @return	The index of the person who survived.
  */
 
-int josephus(std::uint32_t numPeople, std::uint32_t numPasses) {
-	int safePos;
+int josephus(std::uint32_t num_ppl, std::uint32_t num_passes) {
+	if (num_ppl == 1) return 0;
+	if (num_passes == 0) return num_ppl - 1;
 
 	// For 2 passes, can do more efficiently
-	if (numPasses == 2) {
-		int highestOne = 0;
-		int valueOfL = numPeople - highestOneBit(numPeople);
-		safePos = 2 * valueOfL + 1;
-
-		return safePos;
+	// See https://en.wikipedia.org/wiki/Josephus_problem#k.3D2
+	if (num_passes == 2)
+	{
+		int value_of_L = num_ppl - highest_one_bit(num_ppl);
+		return 2 * value_of_L + 1;
+	}
+	else
+	{
+		int next_death = num_passes;
+		for (int i = 1; i <= num_ppl; ++i)
+		{
+			next_death = (next_death + num_passes) % num_ppl;
+		}
+		return (next_death + num_passes) % num_ppl;
 	}
 }
 
@@ -95,7 +107,20 @@ void question_3_33()
 
 }
 
+void question_3_6()
+{
+	int num_ppl = 14;
+	int num_passes = 2;
+
+	std::cout << "Result: " << josephus(num_ppl, num_passes) << std::endl;
+}
+
 int main() {
+	std::cout << "Question 3.6" << std::endl;
+	question_3_6();
+
+	std::cout << std::endl;
+
 	std::cout << "Question 3.22" << std::endl;
 	question_3_22();
 
