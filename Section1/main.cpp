@@ -71,6 +71,6 @@ int main() {
 	std::cout << "Largest: len " << maxPerim.getLength() << ", w " << maxPerim.getWidth() << " (perimeter: " << maxPerim.getLength() * 2 + maxPerim.getWidth() * 2 << ")" << std::endl;
 	std::cin.get();
 
-	// Question 1.16: See Matrix.h
+	// Question 1.16: See Matrix.hpp
 	return 0;
 }

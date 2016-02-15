@@ -120,7 +120,7 @@ void question_3_6()
 	CTimer timer;
 	double time;
 	timer.Start();
-	int result = josephus(100000, 1);
+	int result = josephus(100000, 2);
 	timer.End();
 	timer.Diff(time);
 	std::cout << "Running time for josephus(100 000, 1): " << time * 1000000 << "ms" << std::endl;

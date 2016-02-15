@@ -6,6 +6,38 @@ The answer is a; T1(f(N)) + T2(f(N)) = O(2(f(N))) = O(f(N))
 Question 2.14
 a.
 
+start:
+x = 3
+f(x) = 4x^4 + 8x^3 + 0x^2 + x^1 + 2x^0
+f(x) = 4(81) + 8(27) + 0(9) + 3 + 2
+f(x) = 545
+poly = 0
+
+iteration 1:
+poly = 3 * poly + 4
+poly = 3 * 0 + 4
+poly = 4
+
+iteration 2:
+poly = 3 * poly + 8
+poly = 3 * 4 + 8
+poly = 20
+
+iteration 3:
+poly = 3 * poly + 0
+poly = 3 * 20 + 0
+poly = 60
+
+iteration 4:
+poly = 3 * poly + 1
+poly = 3 * 60 + 1
+poly = 181
+
+iteration 5:
+poly = 3 * poly + 2
+poly = 3 * 181 + 2
+poly = 545
+
 b. At each iteration, the algorithm multiplies the partially computed polynomial from the previous step by x and adds the coefficient for x^n-i. Eventually, this results in polyn = (x^n * a[n]) + (x^n-1 * a[n-1]) ... + a[0] (see below).
 
 poly0 = (x * 0) + a[n]
@@ -26,7 +58,7 @@ Section 3
 ---------
 Question 3.6
 b. The time complexity of the program is O(n).
-c. The running time (tested on lab computers) ranged from 0.2ms-2.2ms for N=100,000 and M=1, but that's because there's a closed-form solution for that case. In the general case, it ranged from 1.7 to 3.8 seconds (though I'm not sure that that's right since it never took that long to start up; the timer may be wrong). 
+c. The running time (tested on lab computers) ranged from 0.2ms-2.2ms for N=100,000 and M=1, but that's because there's a closed-form solution for the M=1 case. In the general case, it ranged from 1.7 to 3.8 seconds (though I'm not sure that that's right since it never took that long to start up; the timer may be wrong). Anyway, the program doesn't use delete, so the running time isn't affected by that.
 
 Question 3.9
 Q: According to the C++ standard, for the vector, a call to push_back, pop_back, insert, or erase invalidates (potentially makes stale) all iterators viewing the vector. Why?

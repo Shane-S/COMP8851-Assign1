@@ -10,7 +10,7 @@ void CTimer::End() {
 }
 
 bool CTimer::Diff(double &seconds) {
-	std::chrono::duration<double> elapsed = end - start;
+	std::chrono::duration<double, std::ratio<1>> elapsed = end - start;
 	seconds = elapsed.count();
 	return false;
 }
