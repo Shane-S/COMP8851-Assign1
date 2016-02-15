@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include "List.hpp"
 #include "PostFixEvaluator.h"
 #include "Queue.hpp"
 #include "CTimer.h"
@@ -68,7 +69,36 @@ std::uint32_t josephus(std::uint32_t num_ppl, std::uint32_t interval) {
 	return winner;
 }
 
-void question_3_22() {
+void question_3_6()
+{
+	std::cout << "josephus(5, 1) (expected: 2, zero-based index): " << josephus(5, 1) << std::endl;
+
+	CTimer timer;
+	double time;
+	timer.Start();
+	int result = josephus(100000, 2);
+	timer.End();
+	timer.Diff(time);
+	std::cout << "Running time for josephus(100 000, 2): " << time * 1000000 << "ms" << std::endl;
+}
+
+void question_3_20()
+{
+	List<int> test_list;
+	for (int i = 0; i < 10; ++i)
+	{
+		test_list.push_back(i);
+	}
+	auto pos_4 = test_list.begin();
+	for (int i = 0; i < 4; i++) pos_4++;
+	test_list.lazy_erase(test_list.begin(), ++pos_4);
+
+	for (auto val : test_list) std::cout << val << " ";
+	std::cout << std::endl;
+}
+
+void question_3_22()
+{
 	// Question 3.22
 	const char* test0 = "1 2 +";
 	const char* test1 = "6 5 2 3 + 8 * + 3 + *";
@@ -112,22 +142,14 @@ void question_3_33()
 
 }
 
-void question_3_6()
-{
-	std::cout << "josephus(5, 1) (expected: 2, zero-based index): " << josephus(5, 1) << std::endl;
-
-	CTimer timer;
-	double time;
-	timer.Start();
-	int result = josephus(100000, 2);
-	timer.End();
-	timer.Diff(time);
-	std::cout << "Running time for josephus(100 000, 1): " << time * 1000000 << "ms" << std::endl;
-}
-
 int main() {
 	std::cout << "Question 3.6" << std::endl;
 	question_3_6();
+
+	std::cout << std::endl;
+
+	std::cout << "Question 3.20" << std::endl;
+	question_3_20();
 
 	std::cout << std::endl;
 

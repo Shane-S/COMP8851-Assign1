@@ -1,4 +1,6 @@
-#pragma once
+#ifndef LIST_H
+#define LIST_H
+
 #include <cstdint>
 
 template <typename Object>
@@ -10,13 +12,14 @@ private:
 		Object data;
 		Node *prev;
 		Node *next;
+		bool deleted;
 
 		Node(const Object & d = Object{}, Node * p = nullptr,
 			Node * n = nullptr)
-			: data{ d }, prev{ p }, next{ n } { }
+			: data{ d }, prev{ p }, next{ n }, deleted{ false } { }
 
 		Node(Object && d, Node * p = nullptr, Node * n = nullptr)
-			: data{ std::move(d) }, prev{ p }, next{ n } { }
+			: data{ std::move(d) }, prev{ p }, next{ n }, deleted{ false } { }
 	};
 
 public:
@@ -38,7 +41,10 @@ public:
 		 */
 		const_iterator & operator++ ()
 		{
-			_current = _current->next;
+			do
+			{
+				this->_current = this->_current->next;
+			} while (this->current->deleted);
 			return *this;
 		}
 
@@ -56,11 +62,14 @@ public:
 
 		const_iterator operator--()
 		{
-			this->_current = this->_current->prev;
+			do
+			{
+				this->_current = this->_current->prev;
+			} while (this->current->deleted);
 			return *this;
 		}
 
-		const_iterator operator--()
+		const_iterator operator--(int)
 		{
 			iterator old = *this;
 			--(*this);
@@ -125,7 +134,10 @@ public:
 		iterator & operator++ ()
 		{
 			// the caller should make sure things don't fall outside of [begin() end())
-			this->_current = this->_current->next;
+			do
+			{
+				this->_current = this->_current->next;
+			} while (this->_current->deleted);
 			return *this;
 		}
 
@@ -138,11 +150,14 @@ public:
 
 		iterator operator--()
 		{
-			this->_current = this->_current->prev;
+			do
+			{
+				this->_current = this->_current->prev;
+			} while (this->current->deleted);
 			return *this;
 		}
 
-		iterator operator--()
+		iterator operator--(int)
 		{
 			iterator old = *this;
 			--(*this);
@@ -172,6 +187,20 @@ public:
 			push_back(x);
 	}
 
+	/**
+	 * @brief	Move constructor.
+	 *
+	 * @param [in,out]	rhs	The rvalue source object.
+	 */
+	List(List && rhs)
+		: _size(rhs._size), _head(_rhs._head), _tail(_rhs._tail)
+	{
+		// Have to zero out everything in rhs so that we don't accidentally delete our own stuff
+		rhs._size = 0;
+		rhs._head = nullptr;
+		rhs._tail = nullptr;
+	}
+
 	~List()
 	{
 		clear();
@@ -196,28 +225,16 @@ public:
 	}
 
 	/**
-	 * @brief	Move constructor.
-	 *
-	 * @param [in,out]	rhs	The rvalue source object.
-	 */
-
-	List(List && rhs)
-		: _size(rhs._size), _head(_rhs.head), _tail(_rhs.tail)
-	{
-		// Have to zero out everything in rhs so that we don't accidentally delete our own stuff
-		rhs._size = 0;
-		rhs._head = nullptr;
-		rhs._tail = nullptr;
-	}
-
-	/**
 	 * @brief	Gets an iterator pointing to the first element in the list.
 	 *
 	 * @return	An iterator pointing to the first element in the list.
 	 */
 	iterator begin()
 	{
-		return{ _head->next };
+		// Find the first non-deleted node
+		Node* start = _head->next;
+		while (start->deleted) start = start->next;
+		return{ start };
 	}
 
 	/**
@@ -227,7 +244,10 @@ public:
 	 */
 	const_iterator begin() const
 	{
-		return{ _head->next };
+		// Find the first non-deleted node
+		Node* start = _head->next;
+		while (start->deleted) start = start->next;
+		return{ start };
 	}
 
 	/**
@@ -237,7 +257,10 @@ public:
 	 */
 	iterator end()
 	{
-		return{ _tail };
+		// Find the last non-deleted node and go one past that
+		Node* end = _tail->prev;
+		while (end->deleted) end = end->prev;
+		return{ end->next };
 	}
 
 	/**
@@ -247,12 +270,15 @@ public:
 	 */
 	const_iterator end() const
 	{
-		return{ _tail };
+		// Find the last non-deleted node and go one past that
+		Node* end = _tail->prev;
+		while (end->deleted) end = end->prev;
+		return{ end->next };
 	}
 
 	std::size_t size() const
 	{
-		return _size;
+		return _numFilled;
 	}
 	bool empty() const
 	{
@@ -357,7 +383,7 @@ public:
 	 */
 	void pop_front()
 	{
-		erase(begin());
+		lazy_erase(begin());
 	}
 
 	/**
@@ -365,21 +391,44 @@ public:
 	 */
 	void pop_back()
 	{
-		erase(--end());
+		lazy_erase(--end());
 	}
 
 	iterator insert(iterator itr, const Object & x)
 	{
 		Node *p = itr._current;
-		_size++;
-		return{ p->prev = p->prev->next = new Node{ x, p->prev, p } };             
+		_numFilled++;
+
+		if (p->prev->deleted)
+		{
+			p->prev->deleted = false;
+			p->prev->data = x;
+			_numDeleted--;
+			return{ p->prev };
+		}
+		else
+		{
+			_size++;
+			return{ p->prev = p->prev->next = new Node{ x, p->prev, p } };
+		}         
 	}
 
 	iterator insert(iterator itr, Object && x)
 	{
 		Node *p = itr._current;
-		_size++;
-		return{ p->prev = p->prev->next = new Node{ std::move(x), p->prev, p } };
+		_numFilled++;
+
+		if (p->prev->deleted)
+		{
+			p->prev->deleted = false;
+			p->prev->data = std::move(x);
+			_numDeleted--;
+		}
+		else
+		{
+			_size++;
+			return{ p->prev = p->prev->next = new Node{ sdt::move(x), p->prev, p } };
+		}
 	}
 
 	iterator erase(iterator itr)
@@ -390,6 +439,7 @@ public:
 		p->next->prev = p->prev;
 		delete p;
 		_size--;
+		_numFilled--;
 
 		return retVal;
 	}
@@ -401,6 +451,56 @@ public:
 		return to;
 	}
 
+	iterator lazy_erase(iterator itr)
+	{
+		// Seems to make more sense to do it this way; we'll traverse this list a whole hell of a lot more if we call lazy_erase every time from the other one
+		return lazy_erase(itr, { itr._current->next });
+	}
+
+	/**
+	 * @brief Lazily erases the segment of the list between [from, to).
+	 *
+	 * @param from The iterator from which to start erasing (this will also be erased).
+	 * @param to   The iterator at which to stop erasing (won't be erased).
+	 * @return     The to iterator.
+	 */
+	iterator lazy_erase(iterator from, iterator to)
+	{
+		// Since our iterators actually skip over deleted nodes with their operators, deletion will have to be done using the raw nodes
+		Node *from_node = from._current;
+		Node *to_node = to._current;
+		Node *current = from_node;
+		while(current != to_node)
+		{
+			current->deleted = true;
+			current = current->next;
+			_numDeleted++;
+			_numFilled--;
+		}
+
+		// Now we have to clean out the deleted nodes for real. How inconvenient
+		// On the plus side, we (should) traverse the list twice max since we're doing it in here
+		if (_numDeleted >= _numFilled)
+		{
+			Node *node = _head->next;
+			while (_numDeleted) // *Shouldn't* need to check for anything else here since _numDeleted should always get to 0 before we go out of bounds
+			{
+				if (node->deleted)
+				{
+					iterator it = { node };
+					node = erase(it)._current;
+					_numDeleted--;
+				}
+				else
+				{
+					node = node->next;
+				}
+			}
+		}
+
+		return to;
+	}
+
 private:
 	std::size_t _size;
 	Node *_head;
@@ -408,3 +508,5 @@ private:
 	std::size_t _numDeleted;
 	std::size_t _numFilled;
 };
+
+#endif
