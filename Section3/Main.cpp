@@ -36,31 +36,36 @@ int highest_one_bit(uint32_t number) {
  * @date	1/25/2016
  *
  * @param	num_ppl		Number of people in the circle.
- * @param	num_passes	Number of passes before the "hot potato" "burns" someone.
+ * @param	interval	Number of passes before the "hot potato" "burns" someone.
  *
- * @return	The index of the person who survived.
+ * @return	The zero-based index of the person who survived.
  */
 
-int josephus(std::uint32_t num_ppl, std::uint32_t num_passes) {
+int josephus(std::uint32_t num_ppl, std::uint32_t interval) {
+	// Some easier cases
 	if (num_ppl == 1) return 0;
-	if (num_passes == 0) return num_ppl - 1;
+	if (interval == 0) return num_ppl - 1;
 
-	// For 2 passes, can do more efficiently
+	// For 2 passes (which is actually one pass, according to the textbook), we can do more better
 	// See https://en.wikipedia.org/wiki/Josephus_problem#k.3D2
-	if (num_passes == 2)
+	if (interval == 1)
 	{
 		int value_of_L = num_ppl - highest_one_bit(num_ppl);
-		return 2 * value_of_L + 1;
+		return 2 * value_of_L;
 	}
-	else
+
+	// The text counts the number of passes, i.e. the number of links between people
+	// Other descriptions of the problem count the people themselves
+	// I.e. according to the text, interval == 2 means that person 0 passes to person 1, person 1 passes to person 2, and person 2 dies
+	// Everybody else would say that person 1 dies since we're killing every second person
+	// So we increment interval to match
+	interval++;
+	int winner = 0;
+	for (int i = 2; i <= num_ppl; ++i)
 	{
-		int next_death = num_passes;
-		for (int i = 1; i <= num_ppl; ++i)
-		{
-			next_death = (next_death + num_passes) % num_ppl;
-		}
-		return (next_death + num_passes) % num_ppl;
+		winner = (winner + interval) % i;
 	}
+	return winner;
 }
 
 void question_3_22() {
@@ -109,7 +114,7 @@ void question_3_33()
 
 void question_3_6()
 {
-	int num_ppl = 14;
+	int num_ppl = 5;
 	int num_passes = 2;
 
 	std::cout << "Result: " << josephus(num_ppl, num_passes) << std::endl;
