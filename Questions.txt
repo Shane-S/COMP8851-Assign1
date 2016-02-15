@@ -24,6 +24,10 @@ c. The running time is O(N).
 
 Section 3
 ---------
+Question 3.6
+b. The time complexity of the program is O(n).
+c. The running time (tested on lab computers) ranged from 0.2ms-2.2ms for N=100,000 and M=1, but that's because there's a closed-form solution for that case. In the general case, it ranged from 1.7 to 3.8 seconds (though I'm not sure that that's right since it never took that long to start up; the timer may be wrong). 
+
 Question 3.9
 Q: According to the C++ standard, for the vector, a call to push_back, pop_back, insert, or erase invalidates (potentially makes stale) all iterators viewing the vector. Why?
 A: push_back and insert could cause the vector to resize its internal array, which may result in the OS giving it a new chunk of memory. Any iterators pointing at the previous chunk of memory would then be pointing to memory that the OS can use for whatever it wants. pop_back or erase may cause the last element to be removed, in which case an iterator pointing to the last element would point at invalid memory. Additionally, insert or erase may modify the middle of the array, in which case an iterator pointing to something at or after the point of insertion or deletion would be pointing at an incorrect value (some elements could end up being processed twice in the case of insertion, and deletion would cause the iterator to go past the end of the container).

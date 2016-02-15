@@ -110,11 +110,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CTimer.h" />
     <ClInclude Include="List.hpp" />
     <ClInclude Include="PostFixEvaluator.h" />
     <ClInclude Include="Queue.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CTimer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PostFixEvaluator.cpp" />
   </ItemGroup>

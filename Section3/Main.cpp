@@ -3,6 +3,7 @@
 #include <iostream>
 #include "PostFixEvaluator.h"
 #include "Queue.hpp"
+#include "CTimer.h"
 
 using std::string;
 
@@ -16,7 +17,7 @@ using std::string;
  *
  * @return	The value of the number's highest bit set to 1 or 0 if number is 0.
  */
-int highest_one_bit(uint32_t number) {
+std::uint32_t highest_one_bit(uint32_t number) {
 	if (!number) return 0;
 
 	std::size_t highestOne = 0;
@@ -25,7 +26,7 @@ int highest_one_bit(uint32_t number) {
 		highestOne++;
 		number_copy >>= 1;
 	}
-	std::uint32_t ret = number & (1 << (highestOne - 1));
+	std::uint32_t ret = 1 << (highestOne - 1);
 	return ret;
 }
 
@@ -41,7 +42,7 @@ int highest_one_bit(uint32_t number) {
  * @return	The zero-based index of the person who survived.
  */
 
-int josephus(std::uint32_t num_ppl, std::uint32_t interval) {
+std::uint32_t josephus(std::uint32_t num_ppl, std::uint32_t interval) {
 	// Some easier cases
 	if (num_ppl == 1) return 0;
 	if (interval == 0) return num_ppl - 1;
@@ -50,18 +51,18 @@ int josephus(std::uint32_t num_ppl, std::uint32_t interval) {
 	// See https://en.wikipedia.org/wiki/Josephus_problem#k.3D2
 	if (interval == 1)
 	{
-		int value_of_L = num_ppl - highest_one_bit(num_ppl);
+		std::uint32_t value_of_L = num_ppl - highest_one_bit(num_ppl);
 		return 2 * value_of_L;
 	}
 
 	// The text counts the number of passes, i.e. the number of links between people
 	// Other descriptions of the problem count the people themselves
-	// I.e. according to the text, interval == 2 means that person 0 passes to person 1, person 1 passes to person 2, and person 2 dies
-	// Everybody else would say that person 1 dies since we're killing every second person
+	// E.g. according to the text, interval == 2 means that person 0 passes to person 1, person 1 passes to person 2, and person 2 dies
+	// Everybody else would say that person 1 dies since we're killing (or burning; whatever floats your boat) every second person
 	// So we increment interval to match
 	interval++;
-	int winner = 0;
-	for (int i = 2; i <= num_ppl; ++i)
+	std::uint32_t winner = 0;
+	for (std::uint32_t i = 2; i <= num_ppl; ++i)
 	{
 		winner = (winner + interval) % i;
 	}
@@ -105,7 +106,7 @@ void question_3_33()
 	for (int i = 0; i < intQueue.capacity(); i++) intQueue.enqueue(i);
 	std::cout << intQueue.size() << std::endl;
 
-	std::cout << "\tContents of queue: ";
+	std::cout << "\tContents of queue:";
 	while (!intQueue.empty()) std::cout << " " << intQueue.dequeue();
 	std::cout << std::endl;
 	std::cout << "\tSize after dequeuing (expected: 0): " << intQueue.size() << std::endl;
@@ -114,10 +115,15 @@ void question_3_33()
 
 void question_3_6()
 {
-	int num_ppl = 5;
-	int num_passes = 2;
+	std::cout << "josephus(5, 1) (expected: 2, zero-based index): " << josephus(5, 1) << std::endl;
 
-	std::cout << "Result: " << josephus(num_ppl, num_passes) << std::endl;
+	CTimer timer;
+	double time;
+	timer.Start();
+	int result = josephus(100000, 1);
+	timer.End();
+	timer.Diff(time);
+	std::cout << "Running time for josephus(100 000, 1): " << time * 1000000 << "ms" << std::endl;
 }
 
 int main() {
