@@ -21,10 +21,9 @@ std::uint32_t highest_one_bit(uint32_t number) {
 	if (!number) return 0;
 
 	std::size_t highestOne = 0;
-	std::uint32_t number_copy = number;
-	while (number_copy) {
+	while (number) {
 		highestOne++;
-		number_copy >>= 1;
+		number >>= 1;
 	}
 	std::uint32_t ret = 1 << (highestOne - 1);
 	return ret;
@@ -41,13 +40,12 @@ std::uint32_t highest_one_bit(uint32_t number) {
  *
  * @return	The zero-based index of the person who survived.
  */
-
 std::uint32_t josephus(std::uint32_t num_ppl, std::uint32_t interval) {
 	// Some easier cases
 	if (num_ppl == 1) return 0;
 	if (interval == 0) return num_ppl - 1;
 
-	// For 2 passes (which is actually one pass, according to the textbook), we can do more better
+	// For interval == 2 (which is actually interval == 1, according to the textbook), we can do better
 	// See https://en.wikipedia.org/wiki/Josephus_problem#k.3D2
 	if (interval == 1)
 	{
@@ -64,6 +62,7 @@ std::uint32_t josephus(std::uint32_t num_ppl, std::uint32_t interval) {
 	std::uint32_t winner = 0;
 	for (std::uint32_t i = 2; i <= num_ppl; ++i)
 	{
+		// See http://blue.butler.edu/~phenders/InRoads/MathCounts8.pdf
 		winner = (winner + interval) % i;
 	}
 	return winner;
